@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A side-by-side design-system study for QuestLog and Deep Dive.">
+  <title>Shared Design System Study — QuestLog × Deep Dive</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --shared-ink: #182023;
+      --shared-muted: #586268;
+      --shared-line: #c8cdca;
+      --shared-paper: #f6f4ed;
+      --shared-focus: #1b66d1;
+      --shared-danger: #a22b2b;
+      --shared-success: #22623e;
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.5rem;
+      --space-6: 2rem;
+      --space-7: 3rem;
+      --radius-control: 0.55rem;
+      --radius-card: 0.9rem;
+      --shadow: 0 0.65rem 1.6rem rgba(24, 32, 35, 0.1);
+      --body: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --display: Georgia, "Times New Roman", serif;
+      --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: #dedfd9;
+      color: var(--shared-ink);
+      font-family: var(--body);
+      line-height: 1.5;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    button, a, input, select, textarea { outline-offset: 3px; }
+
+    :focus-visible {
+      outline: 3px solid var(--shared-focus);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 0.75rem;
+      left: 0.75rem;
+      z-index: 20;
+      padding: 0.65rem 0.9rem;
+      background: #fff;
+      color: #111;
+      border: 2px solid #111;
+      transform: translateY(-150%);
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .page-shell {
+      width: min(1500px, calc(100% - 2rem));
+      margin: 1rem auto;
+      background: var(--shared-paper);
+      border: 1px solid #b8bbb6;
+      box-shadow: 0 1rem 3rem rgba(24, 32, 35, 0.16);
+    }
+
+    .study-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.7fr);
+      gap: var(--space-6);
+      align-items: end;
+      padding: clamp(1.5rem, 4vw, 3.5rem);
+      border-bottom: 1px solid var(--shared-line);
+    }
+
+    .eyebrow,
+    .section-label,
+    .token-name,
+    .kicker {
+      margin: 0 0 var(--space-2);
+      color: var(--shared-muted);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { text-wrap: pretty; }
+
+    h1 {
+      max-width: 18ch;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(2.35rem, 5vw, 5rem);
+      font-weight: 600;
+      letter-spacing: -0.045em;
+      line-height: 0.98;
+    }
+
+    .lede {
+      max-width: 64ch;
+      margin: var(--space-4) 0 0;
+      color: var(--shared-muted);
+      font-size: 1.05rem;
+    }
+
+    .decision-summary {
+      padding: var(--space-5);
+      background: #eeeee7;
+      border: 1px solid var(--shared-line);
+      border-radius: var(--radius-card);
+    }
+
+    .decision-summary h2 {
+      margin: 0 0 var(--space-3);
+      font-size: 1rem;
+    }
+
+    .decision-summary ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .decision-summary li + li { margin-top: 0.35rem; }
+
+    .study-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      padding: var(--space-4) clamp(1.5rem, 4vw, 3.5rem);
+      border-bottom: 1px solid var(--shared-line);
+      background: #f0efe9;
+    }
+
+    .utility-button {
+      min-height: 44px;
+      padding: 0.6rem 0.9rem;
+      color: var(--shared-ink);
+      background: #fff;
+      border: 1px solid #8d9594;
+      border-radius: var(--radius-control);
+      cursor: pointer;
+    }
+
+    .utility-button[aria-pressed="true"] {
+      color: #fff;
+      background: var(--shared-ink);
+      border-color: var(--shared-ink);
+    }
+
+    .comparison-head,
+    .study-row {
+      display: grid;
+      grid-template-columns: minmax(10rem, 0.42fr) minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .comparison-head {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--shared-line);
+      box-shadow: 0 0.3rem 0.8rem rgba(24, 32, 35, 0.08);
+    }
+
+    .comparison-head > div {
+      padding: 1rem clamp(1rem, 2.5vw, 2rem);
+      font-weight: 800;
+    }
+
+    .comparison-head .foundation-head { background: #e7e7e0; }
+    .comparison-head .quest-head { color: #fff8e7; background: #3f3128; }
+    .comparison-head .dive-head { color: #eafcff; background: #08394a; }
+
+    .study-row { border-bottom: 1px solid var(--shared-line); }
+
+    .row-intro {
+      padding: clamp(1.25rem, 2.5vw, 2rem);
+      background: #eeeee8;
+      border-right: 1px solid var(--shared-line);
+    }
+
+    .row-intro h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(1.35rem, 2.5vw, 2rem);
+      line-height: 1.1;
+    }
+
+    .row-intro p {
+      margin: var(--space-3) 0 0;
+      color: var(--shared-muted);
+      font-size: 0.9rem;
+    }
+
+    .skin {
+      position: relative;
+      min-width: 0;
+      padding: clamp(1.25rem, 2.5vw, 2rem);
+      overflow: hidden;
+    }
+
+    .skin + .skin { border-left: 1px solid var(--shared-line); }
+
+    .quest {
+      --ink: #2b211b;
+      --muted: #725f50;
+      --surface: #f6edcf;
+      --surface-strong: #ebddb0;
+      --line: #aa8f5d;
+      --accent: #7a2f39;
+      --accent-strong: #59202a;
+      --positive: #365c3c;
+      --warning: #91551d;
+      color: var(--ink);
+      background-color: #fbf4dc;
+      background-image: repeating-linear-gradient(0deg, transparent 0, transparent 27px, rgba(82, 61, 40, 0.04) 28px);
+    }
+
+    .dive {
+      --ink: #eafcff;
+      --muted: #a9d1d8;
+      --surface: #0b4051;
+      --surface-strong: #105a6e;
+      --line: #397988;
+      --accent: #56dfd0;
+      --accent-strong: #9cf6ea;
+      --positive: #80e4a7;
+      --warning: #ffba66;
+      color: var(--ink);
+      background: #062f3f;
+    }
+
+    .skin h3 {
+      margin: 0 0 var(--space-2);
+      color: var(--ink);
+      font-size: 1rem;
+    }
+
+    .skin p { color: var(--muted); }
+
+    .annotation {
+      margin: var(--space-4) 0 0;
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .annotation strong { color: var(--ink); }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-2);
+    }
+
+    .swatch {
+      min-width: 0;
+      aspect-ratio: 1;
+      border: 1px solid color-mix(in srgb, var(--line), transparent 15%);
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--surface), transparent 40%);
+    }
+
+    .swatch-labels {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.63rem;
+      text-align: center;
+    }
+
+    .type-specimen .display-line {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--display);
+      font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+      line-height: 1;
+    }
+
+    .quest .display-line { letter-spacing: -0.025em; }
+    .dive .display-line { font-family: var(--body); font-weight: 800; letter-spacing: -0.045em; }
+
+    .type-specimen .body-line {
+      max-width: 48ch;
+      margin: var(--space-3) 0 0;
+      color: var(--muted);
+    }
+
+    .micro-line {
+      display: block;
+      margin-top: var(--space-4);
+      color: var(--accent-strong);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .component-stack { display: grid; gap: var(--space-3); }
+
+    .button-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+    .demo-button {
+      min-height: 44px;
+      padding: 0.65rem 0.95rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-control);
+      cursor: pointer;
+      transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease;
+    }
+
+    .demo-button:hover { transform: translateY(-2px); }
+    .demo-button:active { transform: translateY(0); }
+
+    .demo-button.primary {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+      font-weight: 750;
+    }
+
+    .quest .demo-button.primary { box-shadow: 0 3px 0 var(--accent-strong); }
+    .dive .demo-button.primary { color: #042d38; background: var(--accent); }
+
+    .demo-button.secondary {
+      color: var(--ink);
+      background: var(--surface);
+    }
+
+    .demo-button.quiet {
+      color: var(--accent-strong);
+      background: transparent;
+      border-color: transparent;
+      text-decoration: underline;
+      text-underline-offset: 0.25em;
+    }
+
+    .field-grid { display: grid; gap: var(--space-3); }
+
+    .field label {
+      display: block;
+      margin-bottom: var(--space-2);
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 44px;
+      padding: 0.65rem 0.75rem;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-control);
+    }
+
+    .field input::placeholder { color: var(--muted); opacity: 0.9; }
+
+    .check-row {
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      min-height: 44px;
+      color: var(--ink);
+      font-size: 0.9rem;
+    }
+
+    .check-row input { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); }
+
+    .demo-card {
+      padding: var(--space-5);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+    }
+
+    .quest .demo-card { border-radius: 0.35rem 0.75rem 0.45rem 0.65rem; }
+    .dive .demo-card { box-shadow: inset 0 0 0 1px rgba(234, 252, 255, 0.04), 0 0.8rem 1.4rem rgba(0, 20, 28, 0.22); }
+
+    .card-topline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .demo-card h3 { margin: var(--space-3) 0 var(--space-2); font-size: 1.15rem; }
+    .demo-card p { margin: 0; font-size: 0.9rem; }
+
+    .status-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 30px;
+      padding: 0.25rem 0.65rem;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 750;
+    }
+
+    .status::before {
+      width: 0.48rem;
+      height: 0.48rem;
+      background: currentColor;
+      border-radius: 50%;
+      content: "";
+    }
+
+    .status.positive { color: var(--positive); }
+    .status.warning { color: var(--warning); }
+    .status.danger { color: #d24b45; }
+    .quest .status.danger { color: var(--shared-danger); }
+
+    .motion-stage {
+      position: relative;
+      min-height: 165px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+    }
+
+    .quest .motion-stage::before,
+    .quest .motion-stage::after {
+      position: absolute;
+      width: 0.7rem;
+      height: 0.7rem;
+      background: #d6b85e;
+      border-radius: 50%;
+      box-shadow: 0 0 1rem #d6b85e;
+      content: "";
+      animation: spirit 3.2s ease-in-out infinite alternate;
+    }
+
+    .quest .motion-stage::before { top: 25%; left: 18%; }
+    .quest .motion-stage::after { right: 20%; bottom: 24%; animation-delay: -1.2s; }
+
+    .page-turn {
+      position: absolute;
+      inset: 1.4rem;
+      display: grid;
+      place-items: center;
+      color: var(--accent-strong);
+      background: #f8efd3;
+      border: 1px solid var(--line);
+      border-radius: 0.3rem 0.8rem 0.4rem 0.45rem;
+      font-family: var(--display);
+      font-size: 1.15rem;
+      transform-origin: left center;
+      animation: page-breathe 3.2s ease-in-out infinite alternate;
+    }
+
+    .depth-line {
+      position: absolute;
+      inset: 20px 18px;
+      border-left: 2px solid var(--line);
+    }
+
+    .depth-line::before,
+    .depth-line::after {
+      position: absolute;
+      left: -5px;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border: 1px solid #042d38;
+      border-radius: 50%;
+      content: "";
+    }
+
+    .depth-line::before { top: 0; }
+    .depth-line::after { bottom: 0; }
+
+    .diver-dot {
+      position: absolute;
+      left: 15px;
+      bottom: 20px;
+      width: 1.1rem;
+      height: 1.1rem;
+      background: var(--warning);
+      border: 3px solid #062f3f;
+      border-radius: 50%;
+      animation: ascend 4s cubic-bezier(.4, 0, .2, 1) infinite alternate;
+    }
+
+    .bubble {
+      position: absolute;
+      bottom: 20%;
+      width: 0.7rem;
+      height: 0.7rem;
+      border: 2px solid rgba(234, 252, 255, 0.65);
+      border-radius: 50%;
+      animation: bubble-rise 2.8s ease-in infinite;
+    }
+
+    .bubble.one { left: 45%; }
+    .bubble.two { left: 65%; width: 1rem; height: 1rem; animation-delay: -1.5s; }
+    .bubble.three { left: 80%; width: 0.45rem; height: 0.45rem; animation-delay: -0.7s; }
+
+    .motif-board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .motif {
+      display: grid;
+      min-height: 110px;
+      place-items: center;
+      padding: var(--space-3);
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      text-align: center;
+      font-size: 0.75rem;
+    }
+
+    .quest .motif:nth-child(1) { border-radius: 50% 50% 12% 12%; }
+    .quest .motif:nth-child(2) { border-radius: 0.2rem; box-shadow: inset 0 0 0 5px #f6edcf, inset 0 0 0 6px var(--line); }
+    .quest .motif:nth-child(3) { clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%); }
+
+    .dive .motif:nth-child(1) { border-radius: 50%; }
+    .dive .motif:nth-child(2) { border-radius: 999px 999px 0 0; }
+    .dive .motif:nth-child(3) { background-image: repeating-linear-gradient(0deg, transparent 0, transparent 15px, var(--line) 16px); }
+
+    .contrast-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .contrast-table th,
+    .contrast-table td {
+      padding: 0.55rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .contrast-table th { color: var(--ink); }
+    .contrast-table td { color: var(--muted); }
+
+    .pass {
+      color: var(--positive);
+      font-family: var(--mono);
+      font-weight: 800;
+    }
+
+    .study-footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+      padding: clamp(1.5rem, 4vw, 3.5rem);
+      background: #242c2e;
+      color: #f4f2e9;
+    }
+
+    .study-footer h2 { margin: 0 0 var(--space-3); font-family: var(--display); }
+    .study-footer p, .study-footer li { color: #cbd1cf; }
+    .study-footer ul { margin: 0; padding-left: 1.1rem; }
+
+    @keyframes spirit {
+      from { transform: translate(-4px, 5px); opacity: 0.45; }
+      to { transform: translate(6px, -5px); opacity: 1; }
+    }
+
+    @keyframes page-breathe {
+      from { transform: rotateY(0deg) translateY(1px); }
+      to { transform: rotateY(-4deg) translateY(-2px); }
+    }
+
+    @keyframes ascend {
+      from { transform: translateY(0); }
+      to { transform: translateY(-110px); }
+    }
+
+    @keyframes bubble-rise {
+      from { transform: translateY(0) scale(0.75); opacity: 0; }
+      20% { opacity: 0.8; }
+      to { transform: translateY(-110px) scale(1.05); opacity: 0; }
+    }
+
+    body.motion-paused *,
+    body.motion-paused *::before,
+    body.motion-paused *::after {
+      animation-play-state: paused !important;
+    }
+
+    body.high-contrast {
+      --shared-muted: #303638;
+      --shared-line: #737a78;
+    }
+
+    body.high-contrast .quest {
+      --muted: #4b392e;
+      --line: #6d552c;
+      --accent: #651e2a;
+    }
+
+    body.high-contrast .dive {
+      --muted: #d2f5fa;
+      --line: #8bd6e0;
+      --accent: #7ff7e8;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .study-header,
+      .study-footer { grid-template-columns: 1fr; }
+
+      .comparison-head { display: none; }
+
+      .study-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .row-intro {
+        grid-column: 1 / -1;
+        border-right: 0;
+        border-bottom: 1px solid var(--shared-line);
+      }
+    }
+
+    @media (max-width: 620px) {
+      .page-shell { width: 100%; margin: 0; border: 0; }
+      .study-row { grid-template-columns: 1fr; }
+      .skin + .skin { border-left: 0; border-top: 1px solid var(--shared-line); }
+      .skin::before {
+        display: block;
+        margin-bottom: var(--space-4);
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .quest::before { content: "QuestLog · Enchanted Archive"; }
+      .dive::before { content: "Deep Dive · Focus Instrument"; }
+      .motif-board { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#study">Skip to comparison</a>
+  <main class="page-shell" id="study">
+    <header class="study-header">
+      <div>
+        <p class="eyebrow">Assignment artifact · style + interaction study</p>
+        <h1>One foundation, two distinct worlds.</h1>
+        <p class="lede">QuestLog and Deep Dive share dependable interaction rules, spacing, accessibility, and component logic. Their skins communicate different emotional jobs: thoughtful planning in an enchanted archive, and calm concentration through an underwater instrument.</p>
+      </div>
+      <aside class="decision-summary" aria-labelledby="decision-title">
+        <h2 id="decision-title">What this study decided</h2>
+        <ul>
+          <li>Keep control dimensions and state logic shared.</li>
+          <li>Let surface shape, color, and motion carry personality.</li>
+          <li>Use familiar labels beside playful app language.</li>
+          <li>Prefer tactile, purposeful feedback over decoration.</li>
+        </ul>
+      </aside>
+    </header>
+
+    <div class="study-controls" aria-label="Study controls">
+      <button class="utility-button" id="motion-toggle" type="button" aria-pressed="false">Pause motion</button>
+      <button class="utility-button" id="contrast-toggle" type="button" aria-pressed="false">Increase contrast</button>
+      <button class="utility-button" id="focus-demo" type="button">Show keyboard focus</button>
+    </div>
+
+    <div class="comparison-head" aria-hidden="true">
+      <div class="foundation-head">Shared decision</div>
+      <div class="quest-head">QuestLog · Enchanted Archive</div>
+      <div class="dive-head">Deep Dive · Focus Instrument</div>
+    </div>
+
+    <section class="study-row" aria-labelledby="palette-title">
+      <div class="row-intro">
+        <p class="section-label">01 · palettes</p>
+        <h2 id="palette-title">Separate atmosphere, consistent semantics</h2>
+        <p>Each skin maps surface, ink, border, accent, success, warning, and danger to the same functional roles.</p>
+      </div>
+      <article class="skin quest">
+        <div class="swatches" aria-label="QuestLog palette">
+          <span class="swatch" style="background:#2b211b"></span><span class="swatch" style="background:#f6edcf"></span><span class="swatch" style="background:#aa8f5d"></span><span class="swatch" style="background:#7a2f39"></span><span class="swatch" style="background:#365c3c"></span>
+        </div>
+        <div class="swatch-labels"><span>ink</span><span>page</span><span>rule</span><span>seal</span><span>done</span></div>
+        <p class="annotation"><strong>Decision:</strong> warm parchment and oxidized reds suggest a handled archive without imitating a franchise prop.</p>
+      </article>
+      <article class="skin dive">
+        <div class="swatches" aria-label="Deep Dive palette">
+          <span class="swatch" style="background:#eafcff"></span><span class="swatch" style="background:#062f3f"></span><span class="swatch" style="background:#397988"></span><span class="swatch" style="background:#56dfd0"></span><span class="swatch" style="background:#ffba66"></span>
+        </div>
+        <div class="swatch-labels"><span>readout</span><span>depth</span><span>grid</span><span>active</span><span>alert</span></div>
+        <p class="annotation"><strong>Decision:</strong> dark marine surfaces reduce glare; aqua is reserved for active controls and progress, not ambient decoration.</p>
+      </article>
+    </section>
+
+    <section class="study-row" aria-labelledby="type-title">
+      <div class="row-intro">
+        <p class="section-label">02 · typography</p>
+        <h2 id="type-title">A shared reading system with different voices</h2>
+        <p>Body copy, labels, sizing rhythm, and numeric alignment stay consistent. Display treatment changes by context.</p>
+      </div>
+      <article class="skin quest type-specimen">
+        <p class="display-line">Today’s Journey</p>
+        <p class="body-line">Review the quests that matter today, then choose one clear next action.</p>
+        <span class="micro-line">Course · Interaction Design</span>
+        <p class="annotation"><strong>Decision:</strong> serif display type supplies the bookish voice; plain sans-serif body copy protects scanning speed.</p>
+      </article>
+      <article class="skin dive type-specimen">
+        <p class="display-line">24:18</p>
+        <p class="body-line">Focused ascent in progress. Actual time is measured from stored timestamps.</p>
+        <span class="micro-line">Zone 03 · Blue Water</span>
+        <p class="annotation"><strong>Decision:</strong> bold sans numerals read like an instrument; monospaced microcopy carries technical state.</p>
+      </article>
+    </section>
+
+    <section class="study-row" aria-labelledby="buttons-title">
+      <div class="row-intro">
+        <p class="section-label">03 · buttons</p>
+        <h2 id="buttons-title">Same hierarchy, different tactility</h2>
+        <p>Primary, secondary, and quiet actions retain identical priority and 44px minimum targets.</p>
+      </div>
+      <article class="skin quest component-stack">
+        <div class="button-row">
+          <button class="demo-button primary" type="button">New Quest</button>
+          <button class="demo-button secondary" type="button">Open Archive</button>
+          <button class="demo-button quiet" type="button">Copy ID</button>
+        </div>
+        <p class="annotation"><strong>Decision:</strong> a slight pressed edge makes completion feel tactile, but controls remain recognizably desktop UI.</p>
+      </article>
+      <article class="skin dive component-stack">
+        <div class="button-row">
+          <button class="demo-button primary" type="button">Begin Dive</button>
+          <button class="demo-button secondary" type="button">Pause</button>
+          <button class="demo-button quiet" type="button">Cancel</button>
+        </div>
+        <p class="annotation"><strong>Decision:</strong> flatter controls feel instrument-like; bright aqua identifies the single active commitment.</p>
+      </article>
+    </section>
+
+    <section class="study-row" aria-labelledby="forms-title">
+      <div class="row-intro">
+        <p class="section-label">04 · form controls</p>
+        <h2 id="forms-title">Clear labels before themed language</h2>
+        <p>Persistent labels, visible borders, native semantics, and useful placeholders are shared requirements.</p>
+      </div>
+      <article class="skin quest">
+        <div class="field-grid">
+          <div class="field"><label for="quest-title">Quest title</label><input id="quest-title" placeholder="e.g. Finish usability report"></div>
+          <div class="field"><label for="quest-course">Course / module</label><select id="quest-course"><option>Interaction Design</option><option>Development 5</option></select></div>
+          <label class="check-row"><input type="checkbox"> Mark as important</label>
+        </div>
+        <p class="annotation"><strong>Decision:</strong> “Quest” adds tone, while “title” and “course/module” preserve assessment clarity.</p>
+      </article>
+      <article class="skin dive">
+        <div class="field-grid">
+          <div class="field"><label for="activity">Focus activity</label><input id="activity" placeholder="e.g. Implement task filters"></div>
+          <div class="field"><label for="duration">Planned duration</label><select id="duration"><option>25 minutes · Reef</option><option>45 minutes · Blue Water</option></select></div>
+          <label class="check-row"><input type="checkbox" checked> Completion sound</label>
+        </div>
+        <p class="annotation"><strong>Decision:</strong> metaphorical depth follows the factual duration instead of replacing it.</p>
+      </article>
+    </section>
+
+    <section class="study-row" aria-labelledby="cards-title">
+      <div class="row-intro">
+        <p class="section-label">05 · cards</p>
+        <h2 id="cards-title">Cards represent objects, not decoration</h2>
+        <p>Every card groups one actionable record with metadata, status, and one obvious next action.</p>
+      </div>
+      <article class="skin quest">
+        <div class="demo-card">
+          <div class="card-topline"><span class="kicker">Development 5</span><span class="status warning">Due today</span></div>
+          <h3>Build task persistence</h3>
+          <p>Verify that edits survive a complete quit and relaunch.</p>
+        </div>
+        <p class="annotation"><strong>Decision:</strong> irregular page corners are limited to containers; content alignment remains strict.</p>
+      </article>
+      <article class="skin dive">
+        <div class="demo-card">
+          <div class="card-topline"><span class="kicker">Session receipt</span><span class="status positive">Completed</span></div>
+          <h3>Build task persistence</h3>
+          <p>Planned 25m · Actual 27m · Paused 3m · Overtime 2m</p>
+        </div>
+        <p class="annotation"><strong>Decision:</strong> the receipt prioritizes honest time fields over celebratory scoring or invented productivity metrics.</p>
+      </article>
+    </section>
+
+    <section class="study-row" aria-labelledby="status-title">
+      <div class="row-intro">
+        <p class="section-label">06 · status treatment</p>
+        <h2 id="status-title">State is never color alone</h2>
+        <p>Labels and compact markers carry meaning together. Status vocabulary remains explicit and factual.</p>
+      </div>
+      <article class="skin quest">
+        <div class="status-row"><span class="status positive">Completed</span><span class="status warning">Important</span><span class="status danger">Log failed</span></div>
+        <p class="annotation"><strong>Decision:</strong> completion, priority, and write failure stay visually distinct; archive language never hides system reliability.</p>
+      </article>
+      <article class="skin dive">
+        <div class="status-row"><span class="status positive">Running</span><span class="status warning">Paused</span><span class="status danger">Cancelled</span></div>
+        <p class="annotation"><strong>Decision:</strong> timer states use verbs users can verify. Cancelled sessions remain visible rather than disappearing.</p>
+      </article>
+    </section>
+
+    <section class="study-row" aria-labelledby="motion-title">
+      <div class="row-intro">
+        <p class="section-label">07 · motion posture</p>
+        <h2 id="motion-title">Feedback, not spectacle</h2>
+        <p>Motion communicates completion, progression, and continuity. It never supplies authoritative state or blocks input.</p>
+      </div>
+      <article class="skin quest">
+        <div class="motion-stage" aria-label="Subtle page and spirit-light motion demonstration"><div class="page-turn">Quest completed</div></div>
+        <p class="annotation"><strong>Decision:</strong> short page lift and restrained light movement reward completion without creating a game economy.</p>
+      </article>
+      <article class="skin dive">
+        <div class="motion-stage" aria-label="Diver ascent and bubble motion demonstration"><div class="depth-line"></div><span class="diver-dot"></span><span class="bubble one"></span><span class="bubble two"></span><span class="bubble three"></span></div>
+        <p class="annotation"><strong>Decision:</strong> ascent visualizes timestamp-derived progress. Pausing the timer pauses the animation, never the other way around.</p>
+      </article>
+    </section>
+
+    <section class="study-row" aria-labelledby="access-title">
+      <div class="row-intro">
+        <p class="section-label">08 · accessibility</p>
+        <h2 id="access-title">Readable in both worlds</h2>
+        <p>Contrast, focus, reduced motion, target size, labels, and non-color state cues are foundation requirements.</p>
+      </div>
+      <article class="skin quest">
+        <table class="contrast-table">
+          <thead><tr><th>Pair</th><th>Use</th><th>Note</th></tr></thead>
+          <tbody><tr><td>Dark ink / parchment</td><td>Body</td><td class="pass">AAA target</td></tr><tr><td>Seal red / white</td><td>Primary action</td><td class="pass">AA target</td></tr><tr><td>Blue focus ring</td><td>Keyboard focus</td><td>Theme-independent</td></tr></tbody>
+        </table>
+        <p class="annotation"><strong>Decision:</strong> texture remains low contrast behind text, and magical effects are optional rather than informational.</p>
+      </article>
+      <article class="skin dive">
+        <table class="contrast-table">
+          <thead><tr><th>Pair</th><th>Use</th><th>Note</th></tr></thead>
+          <tbody><tr><td>Pale readout / depth</td><td>Body</td><td class="pass">AAA target</td></tr><tr><td>Dark text / aqua</td><td>Primary action</td><td class="pass">AA target</td></tr><tr><td>Text + marker</td><td>Session state</td><td>Not color-only</td></tr></tbody>
+        </table>
+        <p class="annotation"><strong>Decision:</strong> bubbles and ascent respect reduced-motion settings; the numeric timer stays fully usable without them.</p>
+      </article>
+    </section>
+
+    <section class="study-row" aria-labelledby="motif-title">
+      <div class="row-intro">
+        <p class="section-label">09 · original motifs</p>
+        <h2 id="motif-title">Original cues, not borrowed worlds</h2>
+        <p>Motifs emerge from each app’s function and are drawn with shape, line, and type rather than franchise imagery.</p>
+      </div>
+      <article class="skin quest">
+        <div class="motif-board"><div class="motif">chapter arch</div><div class="motif">double-rule folio</div><div class="motif">folded index tab</div></div>
+        <p class="annotation"><strong>Decision:</strong> archive architecture, page rules, and tabs provide enough fantasy character without copied symbols or lore.</p>
+      </article>
+      <article class="skin dive">
+        <div class="motif-board"><div class="motif">bubble / waypoint</div><div class="motif">surface horizon</div><div class="motif">depth intervals</div></div>
+        <p class="annotation"><strong>Decision:</strong> bubbles, horizon shape, and calibrated marks connect directly to focus progression and timer state.</p>
+      </article>
+    </section>
+
+    <footer class="study-footer">
+      <section>
+        <p class="eyebrow">Shared foundation</p>
+        <h2>Reuse the invisible quality.</h2>
+        <ul>
+          <li>4 / 8 / 12 / 16 / 24 / 32 / 48 spacing rhythm</li>
+          <li>44px minimum interactive targets</li>
+          <li>Primary / secondary / quiet action hierarchy</li>
+          <li>Explicit loading, success, warning, error, and empty states</li>
+          <li>Keyboard focus and reduced-motion support</li>
+        </ul>
+      </section>
+      <section>
+        <p class="eyebrow">Final design position</p>
+        <h2>Personality belongs in the skin—not the rules.</h2>
+        <p>QuestLog can feel storied and tactile while Deep Dive feels calm and measured. Both remain legible, reliable, and straightforward enough to assess as coursework and to use every day.</p>
+      </section>
+    </footer>
+  </main>
+
+  <script>
+    const motionToggle = document.querySelector('#motion-toggle');
+    const contrastToggle = document.querySelector('#contrast-toggle');
+    const focusDemo = document.querySelector('#focus-demo');
+
+    function setPressed(button, pressed, activeLabel, inactiveLabel) {
+      button.setAttribute('aria-pressed', String(pressed));
+      button.textContent = pressed ? activeLabel : inactiveLabel;
+    }
+
+    motionToggle.addEventListener('click', () => {
+      const paused = document.body.classList.toggle('motion-paused');
+      setPressed(motionToggle, paused, 'Resume motion', 'Pause motion');
+    });
+
+    contrastToggle.addEventListener('click', () => {
+      const active = document.body.classList.toggle('high-contrast');
+      setPressed(contrastToggle, active, 'Standard contrast', 'Increase contrast');
+    });
+
+    focusDemo.addEventListener('click', () => {
+      const target = document.querySelector('.demo-button.primary');
+      target.focus();
+      target.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+  </script>
+</body>
+</html>
