@@ -1,0 +1,116 @@
+/*
+ * DEEP DIVE DESIGN TOKENS
+ * Change this file first when restyling the app. Components consume these
+ * semantic variables; domain/timer code never imports visual values.
+ */
+:root {
+  /* Core palette */
+  --color-abyss: #041418;
+  --color-deep: #08262d;
+  --color-panel: #0b3038;
+  --color-foam: #e8f5ef;
+  --color-mist: #a5c5c0;
+  --color-muted: #6e9691;
+  --color-aqua: #66d8c7;
+  --color-aqua-bright: #a2f3dc;
+  --color-sun: #f1c777;
+  --color-coral: #ed8f7c;
+  --color-ink: #031315;
+  --color-line: rgba(163, 225, 217, 0.16);
+  --color-line-strong: rgba(163, 225, 217, 0.34);
+
+  /* Compatibility aliases used by the component stylesheet */
+  --abyss: var(--color-abyss);
+  --deep: var(--color-deep);
+  --panel: var(--color-panel);
+  --foam: var(--color-foam);
+  --mist: var(--color-mist);
+  --muted: var(--color-muted);
+  --aqua: var(--color-aqua);
+  --aqua-bright: var(--color-aqua-bright);
+  --sun: var(--color-sun);
+  --coral: var(--color-coral);
+  --ink: var(--color-ink);
+  --line: var(--color-line);
+  --line-strong: var(--color-line-strong);
+
+  /* Typography */
+  --font-ui: 'Avenir Next', Avenir, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-data: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  --sans: var(--font-ui);
+  --mono: var(--font-data);
+
+  /* Layout and spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 9px;
+  --radius-md: 13px;
+  --radius-lg: 22px;
+  --sidebar-width: 190px;
+  --titlebar-height: 58px;
+
+  /* Dive-stage and depth-zone presentation */
+  --ocean-surface: #15525a;
+  --ocean-reef: #0d3e48;
+  --ocean-blue-water: #0a3039;
+  --ocean-deep: #061c26;
+  --zone-shallows: rgba(178, 239, 222, 0.68);
+  --zone-reef: rgba(128, 210, 199, 0.65);
+  --zone-blue-water: rgba(107, 178, 184, 0.62);
+  --zone-twilight: rgba(95, 139, 157, 0.66);
+  --zone-the-deep: rgba(86, 111, 137, 0.7);
+
+  /* Motion */
+  --motion-fast: 160ms;
+  --motion-standard: 340ms;
+  --motion-ascent: 500ms;
+  --motion-float: 3.8s;
+  --motion-rays: 8s;
+
+  /* Bubble field: size, duration, delay and horizontal position */
+  --bubble-left-1: 18%;
+  --bubble-size-1: 5px;
+  --bubble-speed-1: 9s;
+  --bubble-delay-1: -3s;
+  --bubble-left-2: 31%;
+  --bubble-size-2: 11px;
+  --bubble-speed-2: 13s;
+  --bubble-delay-2: -8s;
+  --bubble-left-3: 45%;
+  --bubble-size-3: 4px;
+  --bubble-speed-3: 8s;
+  --bubble-delay-3: -1s;
+  --bubble-left-4: 58%;
+  --bubble-size-4: 8px;
+  --bubble-speed-4: 12s;
+  --bubble-delay-4: -9s;
+  --bubble-left-5: 74%;
+  --bubble-size-5: 4px;
+  --bubble-speed-5: 7s;
+  --bubble-delay-5: -4s;
+  --bubble-left-6: 86%;
+  --bubble-size-6: 13px;
+  --bubble-speed-6: 15s;
+  --bubble-delay-6: -11s;
+  --bubble-left-7: 24%;
+  --bubble-size-7: 4px;
+  --bubble-speed-7: 10s;
+  --bubble-delay-7: -8s;
+  --bubble-left-8: 65%;
+  --bubble-size-8: 6px;
+  --bubble-speed-8: 11s;
+  --bubble-delay-8: -2s;
+  --bubble-left-9: 40%;
+  --bubble-size-9: 3px;
+  --bubble-speed-9: 7s;
+  --bubble-delay-9: -5s;
+  --bubble-left-10: 80%;
+  --bubble-size-10: 7px;
+  --bubble-speed-10: 12s;
+  --bubble-delay-10: -6s;
+}

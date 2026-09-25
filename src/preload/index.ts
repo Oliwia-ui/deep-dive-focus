@@ -1,22 +1,14 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron'
+import type { AppState, DeepDiveApi, SessionKind } from '../shared/types'
 
-// Custom APIs for renderer
-const api = {}
-
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
+const api: DeepDiveApi = {
+  loadState: () => ipcRenderer.invoke('state:load') as Promise<AppState>,
+  saveState: (state) => ipcRenderer.invoke('state:save', state) as Promise<void>,
+  selectVault: () => ipcRenderer.invoke('vault:select') as Promise<string | null>,
+  appendLogEvent: (vaultPath, event) => ipcRenderer.invoke('vault:append-event', vaultPath, event),
+  notifySurface: (activity: string, kind: SessionKind) =>
+    ipcRenderer.invoke('notification:surface', activity, kind) as Promise<void>,
+  getAppInfo: () => ipcRenderer.invoke('app:info')
 }
+
+contextBridge.exposeInMainWorld('deepDive', api)
